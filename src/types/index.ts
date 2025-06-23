@@ -1,44 +1,50 @@
+// Main application types with flexible typing for Supabase joins
 export interface User {
   id: string
   username: string
   email: string
-  bio?: string
-  avatar_url?: string
-  role_id: string
-  plan_id: string
+  bio?: string | null
+  avatar_url?: string | null
+  role_id?: string
+  plan_id?: string
   created_at: string
-  role?: UserRole
-  plan?: SubscriptionPlan
-  // From joins
+  updated_at?: string
   is_active?: boolean
+  // Flexible types for complex Supabase joins
+  role?: any
+  plan?: any
 }
 
 export interface UserRole {
   id: string
-  name: 'admin' | 'user'
-  permissions: Record<string, boolean>
+  name: string
+  permissions: any
+  created_at?: string
 }
 
 export interface SubscriptionPlan {
   id: string
-  name: 'free' | 'basic' | 'premium' | 'pro'
+  name: string
   max_posts: number
   max_products_per_post: number
   price: number
-  features: string[]
+  features: any
+  is_active?: boolean
+  created_at?: string
+  user_count?: number
 }
 
 export interface Post {
   id: string
   user_id: string
   image_url: string
-  caption?: string
+  caption?: string | null
   is_published: boolean
   created_at: string
   updated_at?: string
-  user?: User
-  products?: Product[]
-  // From post_details view
+  // Flexible types for joins and computed fields
+  user?: any
+  products?: any[]
   username?: string
   user_avatar?: string
   product_count?: number
@@ -48,23 +54,29 @@ export interface Product {
   id: string
   post_id: string
   name: string
-  description?: string
+  description?: string | null
   affiliate_url: string
   x_coordinate: number
   y_coordinate: number
+  is_active?: boolean
   created_at: string
-  post?: Post
-  clicks?: Click[]
+  updated_at?: string
+  // Flexible types for joins
+  post?: any
+  clicks?: any[]
 }
 
 export interface Click {
   id: string
   product_id: string
-  user_id?: string
-  ip_address?: string
-  user_agent?: string
+  user_id?: string | null
+  ip_address?: string | null
+  user_agent?: string | null
+  referrer?: string | null
   clicked_at: string
-  product?: Product
+  // Flexible types for joins
+  product?: any
+  product_name?: string
 }
 
 export interface CreatePostData {

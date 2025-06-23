@@ -6,15 +6,27 @@ Bu klasör Gardrop platformunun veritabanı migration dosyalarını içerir.
 
 Migrationları aşağıdaki sırayla çalıştırın:
 
-### 1. `001_initial_schema.sql`
+### 1. `001_initial_schema.sql` (ZORUNLU)
 - Temel veritabanı şeması
 - Tüm tablolar, indeksler, RLS politikaları
 - Trigger fonksiyonları
 - Views (opsiyonel)
 
-### 2. `002_add_storage_policies.sql`
+### 2. `002_add_storage_policies.sql` (İSTEĞE BAĞLI)
 - Supabase Storage bucket politikaları
 - **Önemli**: Önce Supabase Dashboard'da `post-images` bucket'ını oluşturun
+
+### 3. `004_comprehensive_fix.sql` (ÖNERİLEN)
+- Eksik kullanıcıları auth.users'dan public.users'a senkronize eder
+- Trigger fonksiyonunu geliştirir
+- RLS politikalarını doğrular
+- Orphaned data'yı temizler
+- **Bu migration çoğu sorunu çözer!**
+
+### 4. `005_environment_check.sql` (DEBUG)
+- Veritabanı durumunu kontrol eder
+- Test verisi oluşturur
+- Diagnostic bilgiler verir
 
 ## Kurulum Adımları
 

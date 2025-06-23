@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { createClientComponentClient } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
 import type { User as CustomUser } from '@/types'
@@ -22,7 +22,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const supabase = createClientComponentClient()
 
-  const fetchUserData = async (user: User) => {
+  const fetchUserData = useCallback(async (user: User) => {
     try {
       console.log('🔍 Starting fetchUserData for:', user.id)
       console.log('🌐 Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('💥 Error in fetchUserData:', error)
       setUserData(null)
     }
-  }
+  }, [supabase])
 
   const refreshUser = async () => {
     try {
