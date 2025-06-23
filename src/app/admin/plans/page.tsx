@@ -10,7 +10,7 @@ interface Plan {
   max_posts: number
   max_products_per_post: number
   price: number
-  features: string[]
+  features: any
   is_active: boolean
   created_at: string
   user_count?: number

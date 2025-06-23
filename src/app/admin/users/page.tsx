@@ -11,8 +11,8 @@ interface User {
   bio: string | null
   is_active: boolean
   created_at: string
-  role: { name: string } | null
-  plan: { name: string } | null
+  role: any
+  plan: any
 }
 
 export default function AdminUsersPage() {
@@ -183,16 +183,16 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {user.plan?.name || 'free'}
+                        {(user.plan as any)?.name || 'free'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        user.role?.name === 'admin' 
+                        (user.role as any)?.name === 'admin' 
                           ? 'bg-purple-100 text-purple-800'
                           : 'bg-gray-100 text-gray-800'
                       }`}>
-                        {user.role?.name || 'user'}
+                        {(user.role as any)?.name || 'user'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
