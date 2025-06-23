@@ -108,7 +108,7 @@ export default function AnalyticsPage() {
           name: product.name,
           affiliate_url: product.affiliate_url,
           total_clicks: product.clicks?.length || 0,
-          post_caption: product.post?.caption || 'Açıklama yok'
+          post_caption: (product.post as any)?.caption || 'Açıklama yok'
         }))
         .sort((a, b) => b.total_clicks - a.total_clicks)
         .slice(0, 5)
@@ -132,7 +132,7 @@ export default function AnalyticsPage() {
 
       const recentClicks = (recentClicksData || []).map(click => ({
         id: click.id,
-        product_name: click.product?.name || 'Bilinmeyen ürün',
+        product_name: (click.product as any)?.name || 'Bilinmeyen ürün',
         clicked_at: click.clicked_at,
         ip_address: click.ip_address
       }))
