@@ -10,8 +10,9 @@ interface Post {
   image_url: string
   is_published: boolean
   created_at: string
-  user: { username: string } | null
+  user: any
   product_count: number
+  products?: any[]
 }
 
 export default function AdminPostsPage() {
@@ -171,7 +172,7 @@ export default function AdminPostsPage() {
             <CardContent className="p-4 space-y-3">
               <div>
                 <p className="text-sm font-medium text-gray-900">
-                  @{post.user?.username}
+                  @{post.user?.username || 'unknown'}
                 </p>
                 <p className="text-xs text-gray-500">
                   {new Date(post.created_at).toLocaleDateString('tr-TR')}
@@ -203,7 +204,7 @@ export default function AdminPostsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.open(`/${post.user?.username}`, '_blank')}
+                onClick={() => window.open(`/${post.user?.username || 'unknown'}`, '_blank')}
                 className="w-full"
               >
                 Profilde Gör
