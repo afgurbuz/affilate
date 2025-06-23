@@ -10,12 +10,13 @@ import ProductTagger from '@/components/posts/ProductTagger'
 import type { Post, Product, CreateProductData } from '@/types'
 
 interface EditPostPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function EditPostPage({ params }: EditPostPageProps) {
+  const [postId, setPostId] = useState<string>('')
   const { userData } = useAuth()
   const [post, setPost] = useState<Post | null>(null)
   const [products, setProducts] = useState<Product[]>([])
@@ -28,10 +29,18 @@ export default function EditPostPage({ params }: EditPostPageProps) {
   const supabase = createClientComponentClient()
 
   useEffect(() => {
-    if (userData) {
+    const initParams = async () => {
+      const resolvedParams = await params
+      setPostId(resolvedParams.id)
+    }
+    initParams()
+  }, [params])
+
+  useEffect(() => {
+    if (userData && postId) {
       fetchPost()
     }
-  }, [userData, params.id])
+  }, [userData, postId])
 
   const fetchPost = async () => {
     try {
@@ -39,7 +48,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
       const { data: postData, error: postError } = await supabase
         .from('posts')
         .select('*')
-        .eq('id', params.id)
+        .eq('id', postId)
         .eq('user_id', userData?.id)
         .single()
 
@@ -56,7 +65,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
       const { data: productsData, error: productsError } = await supabase
         .from('products')
         .select('*')
-        .eq('post_id', params.id)
+        .eq('post_id', postId)
         .eq('is_active', true)
         .order('created_at', { ascending: true })
 
@@ -83,7 +92,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
 
       if (error) throw error
       
-      setPost({ ...post, caption: caption.trim() || null })
+      setPost({ ...post, caption: caption.trim() || '' })
     } catch (error: any) {
       console.error('Error updating caption:', error)
       alert('Açıklama güncellenirken bir hata oluştu.')
@@ -242,7 +251,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
                 <div className="text-sm text-gray-500 space-y-1">
                   <p>Post ID: {post.id}</p>
                   <p>Oluşturulma: {new Date(post.created_at).toLocaleString('tr-TR')}</p>
-                  <p>Son güncelleme: {new Date(post.updated_at).toLocaleString('tr-TR')}</p>
+                  <p>Son güncelleme: {new Date(post.updated_at || post.created_at).toLocaleString('tr-TR')}</p>
                 </div>
               </CardContent>
             </Card>

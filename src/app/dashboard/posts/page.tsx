@@ -168,10 +168,10 @@ export default function PostsPage() {
                       {post.is_published ? 'Yayında' : 'Taslak'}
                     </span>
                   </div>
-                  {post.product_count > 0 && (
+                  {(post.product_count || 0) > 0 && (
                     <div className="absolute bottom-2 left-2">
                       <span className="bg-black bg-opacity-75 text-white px-2 py-1 text-xs rounded-full">
-                        {post.product_count} ürün
+                        {post.product_count || 0} ürün
                       </span>
                     </div>
                   )}

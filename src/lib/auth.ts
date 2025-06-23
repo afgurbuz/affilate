@@ -1,7 +1,7 @@
-import { createServerComponentClient } from '@/lib/supabase'
+import { createServerComponentClient } from '@/lib/supabase-server'
 
 export async function getCurrentUser() {
-  const supabase = createServerComponentClient()
+  const supabase = await createServerComponentClient()
   
   try {
     const { data: { user }, error } = await supabase.auth.getUser()
@@ -21,7 +21,7 @@ export async function getCurrentUser() {
 }
 
 export async function checkUserRole(userId: string, requiredRole?: string) {
-  const supabase = createServerComponentClient()
+  const supabase = await createServerComponentClient()
   
   try {
     const { data: userData } = await supabase
@@ -44,7 +44,7 @@ export async function checkUserRole(userId: string, requiredRole?: string) {
 }
 
 export async function checkSubscriptionLimits(userId: string, type: 'posts' | 'products') {
-  const supabase = createServerComponentClient()
+  const supabase = await createServerComponentClient()
   
   try {
     const { data: userData } = await supabase

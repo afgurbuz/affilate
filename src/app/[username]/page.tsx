@@ -1,23 +1,24 @@
 import { notFound } from 'next/navigation'
-import { createServerComponentClient } from '@/lib/supabase'
+import { createServerComponentClient } from '@/lib/supabase-server'
 import PublicProfile from '@/components/profile/PublicProfile'
 import type { User, Post } from '@/types'
 
 interface ProfilePageProps {
-  params: {
+  params: Promise<{
     username: string
-  }
+  }>
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
-  const supabase = createServerComponentClient()
+  const { username } = await params
+  const supabase = await createServerComponentClient()
 
   try {
     // Fetch user by username
     const { data: userData, error: userError } = await supabase
       .from('user_details')
       .select('*')
-      .eq('username', params.username)
+      .eq('username', username)
       .eq('is_active', true)
       .single()
 
@@ -50,13 +51,14 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 }
 
 export async function generateMetadata({ params }: ProfilePageProps) {
-  const supabase = createServerComponentClient()
+  const { username } = await params
+  const supabase = await createServerComponentClient()
 
   try {
     const { data: userData } = await supabase
       .from('user_details')
       .select('username, bio, avatar_url')
-      .eq('username', params.username)
+      .eq('username', username)
       .eq('is_active', true)
       .single()
 

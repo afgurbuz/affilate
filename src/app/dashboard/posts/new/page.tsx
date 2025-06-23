@@ -61,7 +61,7 @@ export default function NewPostPage() {
         .select('*', { count: 'exact' })
         .eq('user_id', userData.id)
 
-      if (userData.max_posts !== -1 && count && count >= userData.max_posts) {
+      if ((userData.max_posts || 0) !== -1 && count && count >= (userData.max_posts || 0)) {
         setError('Post limitinize ulaştınız. Planınızı yükseltin.')
         return
       }
@@ -211,7 +211,7 @@ export default function NewPostPage() {
         </div>
 
         {/* Plan Info */}
-        {userData && userData.max_posts !== -1 && (
+        {userData && (userData.max_posts || 0) !== -1 && (
           <Card className="mt-8">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -220,7 +220,7 @@ export default function NewPostPage() {
                     Plan Limitiniz: {userData.plan_name}
                   </p>
                   <p className="text-sm text-gray-500">
-                    Maksimum {userData.max_posts} post paylaşabilirsiniz
+                    Maksimum {userData.max_posts || 0} post paylaşabilirsiniz
                   </p>
                 </div>
                 <Link href="/dashboard/upgrade">

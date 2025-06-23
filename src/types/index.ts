@@ -9,6 +9,13 @@ export interface User {
   created_at: string
   role?: UserRole
   plan?: SubscriptionPlan
+  // From user_details view
+  role_name?: string
+  plan_name?: string
+  max_posts?: number
+  max_products_per_post?: number
+  plan_price?: number
+  plan_features?: string[]
 }
 
 export interface UserRole {
@@ -33,8 +40,13 @@ export interface Post {
   caption?: string
   is_published: boolean
   created_at: string
+  updated_at?: string
   user?: User
   products?: Product[]
+  // From post_details view
+  username?: string
+  user_avatar?: string
+  product_count?: number
 }
 
 export interface Product {
