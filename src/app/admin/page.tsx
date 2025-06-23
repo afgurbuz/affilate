@@ -25,8 +25,8 @@ export default async function AdminDashboard() {
       username,
       email,
       created_at,
-      role:user_roles(name),
-      plan:subscription_plans(name)
+      role:user_roles!inner(name),
+      plan:subscription_plans!inner(name)
     `)
     .order('created_at', { ascending: false })
     .limit(5)
@@ -135,7 +135,7 @@ export default async function AdminDashboard() {
                       {new Date(user.created_at).toLocaleDateString('tr-TR')}
                     </p>
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {user.plan?.name}
+                      {(user.plan as any)?.name || 'free'}
                     </span>
                   </div>
                 </div>
