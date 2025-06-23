@@ -39,7 +39,7 @@ export default async function AdminDashboard() {
       caption,
       created_at,
       is_published,
-      user:users(username)
+      user:users!inner(username)
     `)
     .order('created_at', { ascending: false })
     .limit(5)
@@ -160,7 +160,7 @@ export default async function AdminDashboard() {
                 <div key={post.id} className="flex items-center justify-between py-2">
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-900">
-                      @{post.user?.username}
+                      @{(post.user as any)?.username || 'unknown'}
                     </p>
                     <p className="text-xs text-gray-500 line-clamp-1">
                       {post.caption || 'Açıklama yok'}
