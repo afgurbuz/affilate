@@ -175,7 +175,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
     )
   }
 
-  const maxProducts = userData?.max_products_per_post || 0
+  const maxProducts = userData?.plan?.max_products_per_post || 0
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -262,7 +262,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-900">
-                      Planınız: {userData?.plan_name}
+                      Planınız: {userData?.plan?.name}
                     </p>
                     <p className="text-sm text-gray-500">
                       {maxProducts === -1 

@@ -9,13 +9,8 @@ export interface User {
   created_at: string
   role?: UserRole
   plan?: SubscriptionPlan
-  // From user_details view
-  role_name?: string
-  plan_name?: string
-  max_posts?: number
-  max_products_per_post?: number
-  plan_price?: number
-  plan_features?: string[]
+  // From joins
+  is_active?: boolean
 }
 
 export interface UserRole {

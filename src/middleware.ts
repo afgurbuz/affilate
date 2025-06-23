@@ -84,12 +84,12 @@ export async function middleware(request: NextRequest) {
   // Check admin permissions for admin routes
   if (isAdminRoute && user) {
     const { data: userData } = await supabase
-      .from('user_details')
-      .select('role_name')
+      .from('users')
+      .select('*, role:user_roles!inner(*)')
       .eq('id', user.id)
       .single()
 
-    if (!userData || userData.role_name !== 'admin') {
+    if (!userData || !userData.role || userData.role.name !== 'admin') {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
@@ -97,18 +97,18 @@ export async function middleware(request: NextRequest) {
   // Check subscription limits for certain actions
   if (user && (pathname.startsWith('/dashboard/posts/new') || pathname.startsWith('/api/posts'))) {
     const { data: userData } = await supabase
-      .from('user_details')
-      .select('max_posts, plan_name')
+      .from('users')
+      .select('*, plan:subscription_plans!inner(*)')
       .eq('id', user.id)
       .single()
 
-    if (userData && userData.max_posts !== -1) {
+    if (userData && userData.plan && userData.plan.max_posts !== -1) {
       const { count } = await supabase
         .from('posts')
         .select('*', { count: 'exact' })
         .eq('user_id', user.id)
 
-      if (count && count >= userData.max_posts) {
+      if (count && count >= userData.plan.max_posts) {
         // If this is an API request, return error
         if (pathname.startsWith('/api/')) {
           return NextResponse.json(

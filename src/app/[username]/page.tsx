@@ -16,8 +16,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   try {
     // Fetch user by username
     const { data: userData, error: userError } = await supabase
-      .from('user_details')
-      .select('*')
+      .from('users')
+      .select('*, role:user_roles(*), plan:subscription_plans(*)')
       .eq('username', username)
       .eq('is_active', true)
       .single()
@@ -26,10 +26,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       notFound()
     }
 
-    // Fetch user's published posts
+    // Fetch user's published posts with product count
     const { data: postsData, error: postsError } = await supabase
-      .from('post_details')
-      .select('*')
+      .from('posts')
+      .select(`
+        *,
+        products!inner(id)
+      `)
       .eq('user_id', userData.id)
       .eq('is_published', true)
       .order('created_at', { ascending: false })
@@ -38,10 +41,18 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       console.error('Error fetching posts:', postsError)
     }
 
+    // Transform posts data to include product count
+    const postsWithCount = (postsData || []).map(post => ({
+      ...post,
+      product_count: post.products?.length || 0,
+      username: userData.username,
+      user_avatar: userData.avatar_url
+    }))
+
     return (
       <PublicProfile 
         user={userData as User} 
-        posts={(postsData as Post[]) || []} 
+        posts={postsWithCount as Post[]} 
       />
     )
   } catch (error) {
@@ -56,7 +67,7 @@ export async function generateMetadata({ params }: ProfilePageProps) {
 
   try {
     const { data: userData } = await supabase
-      .from('user_details')
+      .from('users')
       .select('username, bio, avatar_url')
       .eq('username', username)
       .eq('is_active', true)

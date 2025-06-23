@@ -27,13 +27,23 @@ export default function PostsPage() {
 
     try {
       const { data, error } = await supabase
-        .from('post_details')
-        .select('*')
+        .from('posts')
+        .select(`
+          *,
+          products(id)
+        `)
         .eq('user_id', userData.id)
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      setPosts(data || [])
+      
+      // Transform data to include product_count
+      const postsWithCount = (data || []).map(post => ({
+        ...post,
+        product_count: post.products?.length || 0
+      }))
+      
+      setPosts(postsWithCount)
     } catch (error) {
       console.error('Error fetching posts:', error)
     } finally {
@@ -46,8 +56,8 @@ export default function PostsPage() {
     
     setStats({
       current: posts.length,
-      limit: userData.max_posts || 0,
-      unlimited: userData.max_posts === -1
+      limit: userData.plan?.max_posts || 0,
+      unlimited: userData.plan?.max_posts === -1
     })
   }
 

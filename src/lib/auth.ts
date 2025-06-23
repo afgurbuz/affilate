@@ -8,8 +8,8 @@ export async function getCurrentUser() {
     if (error || !user) return null
 
     const { data: userData } = await supabase
-      .from('user_details')
-      .select('*')
+      .from('users')
+      .select('*, role:user_roles(*), plan:subscription_plans(*)')
       .eq('id', user.id)
       .single()
 
@@ -25,15 +25,15 @@ export async function checkUserRole(userId: string, requiredRole?: string) {
   
   try {
     const { data: userData } = await supabase
-      .from('user_details')
-      .select('role_name, role_permissions')
+      .from('users')
+      .select('*, role:user_roles!inner(*)')
       .eq('id', userId)
       .single()
 
-    if (!userData) return false
+    if (!userData || !userData.role) return false
 
     if (requiredRole) {
-      return userData.role_name === requiredRole
+      return userData.role.name === requiredRole
     }
 
     return userData
@@ -48,15 +48,15 @@ export async function checkSubscriptionLimits(userId: string, type: 'posts' | 'p
   
   try {
     const { data: userData } = await supabase
-      .from('user_details')
-      .select('max_posts, max_products_per_post, plan_name')
+      .from('users')
+      .select('*, plan:subscription_plans!inner(*)')
       .eq('id', userId)
       .single()
 
-    if (!userData) return { allowed: false, current: 0, limit: 0 }
+    if (!userData || !userData.plan) return { allowed: false, current: 0, limit: 0 }
 
     if (type === 'posts') {
-      if (userData.max_posts === -1) {
+      if (userData.plan.max_posts === -1) {
         return { allowed: true, current: 0, limit: -1, unlimited: true }
       }
 
@@ -66,10 +66,10 @@ export async function checkSubscriptionLimits(userId: string, type: 'posts' | 'p
         .eq('user_id', userId)
 
       return {
-        allowed: (currentPosts || 0) < userData.max_posts,
+        allowed: (currentPosts || 0) < userData.plan.max_posts,
         current: currentPosts || 0,
-        limit: userData.max_posts,
-        planName: userData.plan_name
+        limit: userData.plan.max_posts,
+        planName: userData.plan.name
       }
     }
 
@@ -77,9 +77,9 @@ export async function checkSubscriptionLimits(userId: string, type: 'posts' | 'p
       return {
         allowed: true,
         current: 0,
-        limit: userData.max_products_per_post,
-        unlimited: userData.max_products_per_post === -1,
-        planName: userData.plan_name
+        limit: userData.plan.max_products_per_post,
+        unlimited: userData.plan.max_products_per_post === -1,
+        planName: userData.plan.name
       }
     }
 
