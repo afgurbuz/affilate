@@ -25,11 +25,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchUserData = async (user: User) => {
     try {
       console.log('Fetching user data for:', user.id)
-      const { data, error } = await supabase
+      
+      // Add timeout to prevent infinite loading
+      const timeout = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout')), 10000)
+      )
+      
+      const query = supabase
         .from('users')
         .select('*, role:user_roles(*), plan:subscription_plans(*)')
         .eq('id', user.id)
         .single()
+      
+      const { data, error } = await Promise.race([query, timeout])
       
       if (error) {
         console.error('Supabase error fetching user:', error)
