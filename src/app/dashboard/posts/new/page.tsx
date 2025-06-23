@@ -6,50 +6,26 @@ import Link from 'next/link'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { createClientComponentClient } from '@/lib/supabase'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
+import ImageUploader from '@/components/posts/ImageUploader'
 
 export default function NewPostPage() {
   const { userData } = useAuth()
   const [caption, setCaption] = useState('')
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   
   const router = useRouter()
   const supabase = createClientComponentClient()
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      setImageFile(file)
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const uploadImage = async (file: File): Promise<string> => {
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${userData?.id}/${Date.now()}.${fileExt}`
-    
-    const { error: uploadError } = await supabase.storage
-      .from('posts')
-      .upload(fileName, file)
-
-    if (uploadError) throw uploadError
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('posts')
-      .getPublicUrl(fileName)
-
-    return publicUrl
+  const handleImageUploaded = (uploadedImageUrl: string) => {
+    setImageUrl(uploadedImageUrl)
+    setError('')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!imageFile || !userData) return
+    if (!imageUrl || !userData) return
 
     setIsLoading(true)
     setError('')
@@ -65,9 +41,6 @@ export default function NewPostPage() {
         setError('Post limitinize ulaştınız. Planınızı yükseltin.')
         return
       }
-
-      // Upload image
-      const imageUrl = await uploadImage(imageFile)
 
       // Create post
       const { data, error: postError } = await supabase
@@ -111,53 +84,11 @@ export default function NewPostPage() {
               <CardTitle>Fotoğraf Yükle</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  {imagePreview ? (
-                    <div className="space-y-4">
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="max-w-full h-64 object-cover mx-auto rounded"
-                      />
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setImageFile(null)
-                          setImagePreview(null)
-                        }}
-                      >
-                        Farklı Fotoğraf Seç
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="text-gray-500">
-                        <svg className="mx-auto h-12 w-12" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                          <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </div>
-                      <div>
-                        <label htmlFor="image-upload" className="cursor-pointer">
-                          <span className="mt-2 block text-sm font-medium text-gray-900">
-                            Fotoğraf seçmek için tıklayın
-                          </span>
-                          <input
-                            id="image-upload"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            className="hidden"
-                          />
-                        </label>
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        PNG, JPG, GIF dosyaları desteklenir
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <ImageUploader
+                onImageUploaded={handleImageUploaded}
+                userId={userData?.id || ''}
+                disabled={!userData}
+              />
             </CardContent>
           </Card>
 
@@ -193,7 +124,7 @@ export default function NewPostPage() {
                 <div className="flex gap-4">
                   <Button
                     type="submit"
-                    disabled={!imageFile || isLoading}
+                    disabled={!imageUrl || isLoading}
                     isLoading={isLoading}
                     className="flex-1"
                   >
