@@ -24,27 +24,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserData = async (user: User) => {
     try {
-      console.log('Fetching user data for:', user.id)
+      console.log('🔍 Starting fetchUserData for:', user.id)
+      console.log('🌐 Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
       
+      // Simple test query first
+      console.log('📝 Testing basic connection...')
+      const { data: testData, error: testError } = await supabase
+        .from('users')
+        .select('id')
+        .limit(1)
+      
+      console.log('✅ Basic connection test:', { testData, testError })
+      
+      console.log('📝 Fetching user with joins...')
       const { data, error } = await supabase
         .from('users')
         .select('*, role:user_roles(*), plan:subscription_plans(*)')
         .eq('id', user.id)
         .single()
       
+      console.log('📊 Query result:', { data, error })
+      
       if (error) {
-        console.error('Supabase error fetching user:', error)
+        console.error('❌ Supabase error fetching user:', error)
         if (error.code === 'PGRST116') {
-          console.log('User not found in public.users table, user may need to complete registration')
+          console.log('👤 User not found in public.users table')
         }
         setUserData(null)
         return
       }
       
-      console.log('User data fetched successfully:', data)
+      console.log('✅ User data fetched successfully:', data)
       setUserData(data)
     } catch (error) {
-      console.error('Error fetching user data:', error)
+      console.error('💥 Error in fetchUserData:', error)
       setUserData(null)
     }
   }
