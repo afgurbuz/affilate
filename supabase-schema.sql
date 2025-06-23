@@ -43,8 +43,8 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL,
     bio TEXT,
     avatar_url TEXT,
-    role_id UUID NOT NULL REFERENCES user_roles(id) DEFAULT (SELECT id FROM user_roles WHERE name = 'user'),
-    plan_id UUID NOT NULL REFERENCES subscription_plans(id) DEFAULT (SELECT id FROM subscription_plans WHERE name = 'free'),
+    role_id UUID NOT NULL REFERENCES user_roles(id),
+    plan_id UUID NOT NULL REFERENCES subscription_plans(id),
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -220,13 +220,22 @@ CREATE POLICY "Admins can view all clicks" ON clicks FOR SELECT USING (
 -- Function to handle new user registration
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+    default_role_id UUID;
+    default_plan_id UUID;
 BEGIN
-    INSERT INTO public.users (id, username, email, avatar_url)
+    -- Get default role and plan IDs
+    SELECT id INTO default_role_id FROM user_roles WHERE name = 'user';
+    SELECT id INTO default_plan_id FROM subscription_plans WHERE name = 'free';
+    
+    INSERT INTO public.users (id, username, email, avatar_url, role_id, plan_id)
     VALUES (
         NEW.id,
         COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
         NEW.email,
-        COALESCE(NEW.raw_user_meta_data->>'avatar_url', 'https://ui-avatars.com/api/?name=' || encode(NEW.email::bytea, 'base64'))
+        COALESCE(NEW.raw_user_meta_data->>'avatar_url', 'https://ui-avatars.com/api/?name=' || encode(NEW.email::bytea, 'base64')),
+        default_role_id,
+        default_plan_id
     );
     RETURN NEW;
 END;
