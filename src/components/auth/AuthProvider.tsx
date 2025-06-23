@@ -24,12 +24,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserData = async (user: User) => {
     try {
-      const { data } = await supabase
+      console.log('Fetching user data for:', user.id)
+      const { data, error } = await supabase
         .from('users')
         .select('*, role:user_roles(*), plan:subscription_plans(*)')
         .eq('id', user.id)
         .single()
       
+      if (error) {
+        console.error('Supabase error fetching user:', error)
+        if (error.code === 'PGRST116') {
+          console.log('User not found in public.users table, user may need to complete registration')
+        }
+        setUserData(null)
+        return
+      }
+      
+      console.log('User data fetched successfully:', data)
       setUserData(data)
     } catch (error) {
       console.error('Error fetching user data:', error)
@@ -60,20 +71,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setUser(session?.user ?? null)
-      
-      if (session?.user) {
-        await fetchUserData(session.user)
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        setUser(session?.user ?? null)
+        
+        if (session?.user) {
+          await fetchUserData(session.user)
+        }
+      } catch (error) {
+        console.error('Error getting initial session:', error)
+      } finally {
+        setLoading(false)
       }
-      
-      setLoading(false)
     }
 
     getInitialSession()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.id)
         setUser(session?.user ?? null)
         
         if (session?.user) {
