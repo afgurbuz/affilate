@@ -22,7 +22,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       .eq('is_active', true)
       .single()
 
-    if (userError || !userData) {
+    if (userError) {
+      console.error('User fetch error:', userError)
+      notFound()
+    }
+
+    if (!userData) {
+      console.error('User not found:', username)
       notFound()
     }
 
@@ -31,7 +37,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       .from('posts')
       .select(`
         *,
-        products!inner(id)
+        products(id)
       `)
       .eq('user_id', userData.id)
       .eq('is_published', true)
