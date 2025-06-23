@@ -63,7 +63,7 @@ export default function UpgradePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 text-center">
           <Link href="/dashboard" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4">
-            ← Dashboard'a Dön
+            ← Dashboard&apos;a Dön
           </Link>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Planınızı Yükseltin

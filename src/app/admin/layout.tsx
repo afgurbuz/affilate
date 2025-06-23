@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { requireAdmin } from '@/lib/auth'
 
 export default async function AdminLayout({
@@ -23,36 +24,36 @@ export default async function AdminLayout({
               </h1>
             </div>
             <nav className="flex space-x-8">
-              <a
+              <Link
                 href="/admin"
                 className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Dashboard
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/admin/users"
                 className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Kullanıcılar
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/admin/posts"
                 className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Postlar
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/admin/plans"
                 className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Planlar
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/dashboard"
                 className="text-blue-600 hover:text-blue-700 px-3 py-2 rounded-md text-sm font-medium"
               >
                 ← Ana Panel
-              </a>
+              </Link>
             </nav>
           </div>
         </div>
