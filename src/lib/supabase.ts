@@ -1,0 +1,212 @@
+import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient, createServerClient, type CookieOptions } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+// Client-side Supabase client
+export const createClientComponentClient = () =>
+  createBrowserClient(supabaseUrl, supabaseAnonKey)
+
+// Server-side Supabase client
+export const createServerComponentClient = () => {
+  const cookieStore = cookies()
+  
+  return createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      get(name: string) {
+        return cookieStore.get(name)?.value
+      },
+    },
+  })
+}
+
+// Route handler Supabase client
+export const createRouteHandlerClient = (cookieStore: ReadonlyRequestCookies) =>
+  createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      get(name: string) {
+        return cookieStore.get(name)?.value
+      },
+      set(name: string, value: string, options: CookieOptions) {
+        cookieStore.set({ name, value, ...options })
+      },
+      remove(name: string, options: CookieOptions) {
+        cookieStore.delete({ name, ...options })
+      },
+    },
+  })
+
+// Admin client (server-only)
+export const supabaseAdmin = createClient(
+  supabaseUrl,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+// Database types
+export type Database = {
+  public: {
+    Tables: {
+      user_roles: {
+        Row: {
+          id: string
+          name: string
+          permissions: any
+        }
+        Insert: {
+          id?: string
+          name: string
+          permissions?: any
+        }
+        Update: {
+          id?: string
+          name?: string
+          permissions?: any
+        }
+      }
+      subscription_plans: {
+        Row: {
+          id: string
+          name: string
+          max_posts: number
+          max_products_per_post: number
+          price: number
+          features: any
+        }
+        Insert: {
+          id?: string
+          name: string
+          max_posts: number
+          max_products_per_post: number
+          price: number
+          features?: any
+        }
+        Update: {
+          id?: string
+          name?: string
+          max_posts?: number
+          max_products_per_post?: number
+          price?: number
+          features?: any
+        }
+      }
+      users: {
+        Row: {
+          id: string
+          username: string
+          email: string
+          bio: string | null
+          avatar_url: string | null
+          role_id: string
+          plan_id: string
+          created_at: string
+        }
+        Insert: {
+          id: string
+          username: string
+          email: string
+          bio?: string | null
+          avatar_url?: string | null
+          role_id: string
+          plan_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          username?: string
+          email?: string
+          bio?: string | null
+          avatar_url?: string | null
+          role_id?: string
+          plan_id?: string
+          created_at?: string
+        }
+      }
+      posts: {
+        Row: {
+          id: string
+          user_id: string
+          image_url: string
+          caption: string | null
+          is_published: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          image_url: string
+          caption?: string | null
+          is_published?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          image_url?: string
+          caption?: string | null
+          is_published?: boolean
+          created_at?: string
+        }
+      }
+      products: {
+        Row: {
+          id: string
+          post_id: string
+          name: string
+          description: string | null
+          affiliate_url: string
+          x_coordinate: number
+          y_coordinate: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          name: string
+          description?: string | null
+          affiliate_url: string
+          x_coordinate: number
+          y_coordinate: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          name?: string
+          description?: string | null
+          affiliate_url?: string
+          x_coordinate?: number
+          y_coordinate?: number
+          created_at?: string
+        }
+      }
+      clicks: {
+        Row: {
+          id: string
+          product_id: string
+          user_id: string | null
+          ip_address: string | null
+          user_agent: string | null
+          clicked_at: string
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          user_id?: string | null
+          ip_address?: string | null
+          user_agent?: string | null
+          clicked_at?: string
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          user_id?: string | null
+          ip_address?: string | null
+          user_agent?: string | null
+          clicked_at?: string
+        }
+      }
+    }
+  }
+}
